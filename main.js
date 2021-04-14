@@ -5,6 +5,7 @@ import QRCode from 'qrcode/lib/browser'
 
 const $ = document.querySelector.bind(document)
 const isCast = window.location.search.substr(1) !== 'pc'
+console.log('is cast: ', isCast)
 
 const socket = io('https://cast.leoboyer.dev')
 function configSocket(id) {
@@ -34,6 +35,67 @@ if (isCast) {
 }
 
 socket.on('ready', () => {
-    $('.waiting').style.display = 'none'
-    $('.game').style.display = 'block'
+    $('.pc-waiting').style.display = 'none'
+    $('.cast-waiting').style.display = 'none'
+    $('.game').style.display = 'flex'
+    game()
 })
+
+function delay(delay) {
+    return new Promise(function(resolve) {
+        setTimeout(resolve, delay);
+    });
+}
+
+async function game() {
+    let gameturn = 0 // 0 = cast, 1 = player
+    const switchGameTurn = () => {
+        gameturn = 1 - gameturn
+        socket.emit('game-data', {
+            type: 'turn',
+            turn: gameturn
+        })
+    }
+    let playerScore = 0
+    let opponentScore = 0
+    const updateScore = () => {
+        $('.score-player').innerText = playerScore
+        $('.score-opponent').innerText = opponentScore
+    }
+
+
+    // defining listenners
+    socket.on('game-data', async data => {
+        if (data.type === 'roll') {
+            switchGameTurn()
+            $('#player-dice').innerText = data.number
+            await delay(100)
+            $('.dice.player').classList.add('visible')
+            await delay(1000)
+            playCastTurn(data.number)
+        }
+    })
+    const playCastTurn = async (playerDice) => {
+        const diceVal = Math.round(Math.random() * 6) + 1
+        $('#opponent-dice').innerText = diceVal
+        if (playerDice > diceVal) {
+            playerScore++
+        } else if (playerDice < diceVal) {
+            opponentScore++
+        }
+        updateScore()
+        await delay(2000)
+        $('.dice.player').classList.remove('visible')
+        await delay(100)
+        switchGameTurn()
+        $('#opponent-dice').innerText = '...'
+        socket.emit('game-data', {
+            type: 'diceVal',
+            val: '...'
+        })
+    }
+
+    // run game
+    await delay(2000)
+    switchGameTurn()
+}

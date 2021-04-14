@@ -12,11 +12,20 @@
         <h1>Connexion en cours...</h1>
       </div>
       <div class="pc-waiting">
-        <h1>Ici le QR code</h1>
+        <h1>Scanner le code pour se connecter</h1>
         <canvas id="qrcode"></canvas>
       </div>
       <div class="game">
         <h1>Le jeu !</h1>
+        <h2><span class="score-player">0</span> à <span class="score-opponent">0</span></h2>
+        <article class="dice opponent">
+          <span>Dé de l'adversaire</span>
+          <span class="number" id="opponent-dice">...</span>
+        </article>
+        <article class="dice player">
+          <span>Votre dé</span>
+          <span class="number" id="player-dice">...</span>
+        </article>
       </div>
     </div>
 
