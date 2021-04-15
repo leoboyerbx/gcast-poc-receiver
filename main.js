@@ -86,7 +86,6 @@ async function game() {
         updateScore()
         await delay(2000)
         $('.dice.player').classList.remove('visible')
-        await delay(100)
         switchGameTurn()
         $('#opponent-dice').innerText = '...'
         socket.emit('game-data', {
